@@ -16,9 +16,7 @@ stan_code <- "
 // Groups:  1 = ychild, 2 = ochild, 3 = adult_hivneg,
 //          4 = adult_hivS, 5 = adult_hivL
 //
-// KEY CHANGE vs previous version:
-//   Competition rates are no longer fixed scalar parameters.
-//   They are derived from the forces of infection at each transition:
+//   Competition rates are derived from the forces of infection at each transition:
 //
 //     sigma_VN(i,t) = lambda_NVT(i,t) * eps_V
 //     sigma_NV(i,t) = lambda_VT(i,t)  * eps_N
@@ -32,8 +30,7 @@ stan_code <- "
 //     modulated by eps_V which captures competitive exclusion (eps < 1),
 //     independence (eps = 1), or facilitation (eps > 1).
 //     Because lambda_NVT and lambda_VT vary by individual and visit,
-//     sigma_VN and sigma_NV are no longer constants — they are individual-
-//     and visit-specific derived quantities inside the rate matrix Q.
+//     sigma_VN and sigma_NV are are individual- and visit-specific derived quantities inside the rate matrix Q.
 // ===========================================================================
 
 functions {
@@ -48,15 +45,14 @@ functions {
    * This means sigma_VN and sigma_NV:
    *   (a) vary by individual and by transition (because lVT, lNVT do);
    *   (b) are zero whenever the competing type has zero exposure pressure;
-   *   (c) scale with exposure to the competing type — capturing the
-   *       mechanistic requirement that displacement requires encounter.
+   *   (c) scale with exposure to the competing type — capturing the mechanistic requirement that displacement requires encounter.
    *
    * @param lVT    total VT  FOI (S -> VT acquisition; used for sigma_NV)
    * @param lNVT   total NVT FOI (S -> NVT acquisition; used for sigma_VN)
    * @param muVT   VT  clearance rate of THIS individual's group (VT  -> S)
    * @param muNVT  NVT clearance rate of THIS individual's group (NVT -> S)
    * @param epsV   relative risk of NVT acquisition if currently VT carrier
-   * @param epsN   relative risk of VT  acquisition if currently NVT carrier
+   * @param epsN   relative risk of VT acquisition if currently NVT carrier
    */
   matrix make_Q(real lVT,  real lNVT,
                 real muVT, real muNVT,
@@ -168,7 +164,7 @@ model {
   mu_NVT ~ normal(1.0, 0.5);
 
   // Relative-risk competition parameters
-  // Exponential(2) => mean 0.5 (prior favour competitive exclusion, eps < 1)
+  // Exponential(2) => mean 0.5 (prior favours competitive exclusion, eps < 1)
   // allowing values > 1 (facilitation) if data support it
   eps_V ~ exponential(2.0);
   eps_N ~ exponential(2.0);

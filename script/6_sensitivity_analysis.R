@@ -165,8 +165,7 @@ print(rhat_tbl %>%
 waifw_VT_fit_neg  <- summarise_matrix_param("beta_H_VT")
 waifw_NVT_fit_neg <- summarise_matrix_param("beta_H_NVT")
 
-
-#==================================================================== 
+#====================================================================
 
 sens_betaVT <- print((plot_waifw_5x5(waifw_VT_fit_main,  "A") + labs(subtitle = "Household VT Transmission (WAIFW \u03b2) if unknown adult HIV status is the same as that of HH index") | 
                       plot_waifw_5x5(waifw_VT_fit_artL, "B") + labs(subtitle = "Household VT Transmission (WAIFW \u03b2) if unknown adult HIV status is categorized as prolonged ART use"))/

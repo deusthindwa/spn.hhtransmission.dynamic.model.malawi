@@ -380,7 +380,8 @@ compute_ppc_df <- function(rep_mat, obs_vec, visit_label) {
 
 ppc_df <- 
   bind_rows(compute_ppc_df(s2_rep_mat, dat_model$s2, "Visit 2  (v1\u2192v2)"),
-            compute_ppc_df(s3_rep_mat, dat_model$s3, "Visit 3  (v2\u2192v3)"))
+            compute_ppc_df(s3_rep_mat, dat_model$s3, "Visit 3  (v2\u2192v3)")) %>%
+  dplyr::mutate(state_label = factor(state_label, levels = c('Susceptible', 'NVT', 'VT')))
 
 p_ppc <- 
   ggplot(ppc_df, aes(x = state_label, fill = state_label)) +
