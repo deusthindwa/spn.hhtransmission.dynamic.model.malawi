@@ -10,7 +10,7 @@
 
 #load packages
 pacman::p_load(char = c("lubridate", "tidyverse", "dplyr","here", "rio", "scales", "boot", "magrittr",  "mvtnorm", "zoo", 
-                        "patchwork", "ggplotify", "sf", "expm", "INLA", "data.table", "StanHeaders", "bayesplot",
+                        "patchwork", "ggplotify", "sf", "expm", "INLA", "data.table", "StanHeaders", "bayesplot", "ggdist",
                         "PropCIs", "reshape2","purrr", "msm", "minqa", "optimx", "ggridges", "timetk", "ggbreak", "ggpubr", 
                         "gridExtra", "doParallel", "igraph", "rgdal", "rstan", "expm", "posterior", "expm"))
 
@@ -40,10 +40,13 @@ source(here("script", "4_model_run.R"))
 #ANALYSIS OF THE POSTERIOR SAMPLES
 
 #generates different estimates and plots from the posterior distribution
-source(here("script", "5_posterior_analysis.R"))
+source(here("script", "5_posterior_analysis_I.R"))
+
+#generates different estimates and plots from the posterior distribution
+source(here("script", "6_posterior_analysis_II.R"))
 
 #generates different posteriors for sensitivity on missing HIV status
-source(here("script", "6_sensitivity_analysis.R"))
+source(here("script", "7_sensitivity_analysis.R"))
 
 
 # MODEL OVERVIEW

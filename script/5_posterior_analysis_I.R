@@ -117,7 +117,7 @@ plot_waifw_5x5 <- function(df, title, fill_label = expression(beta), text_size =
     scale_y_discrete(limits = rev(AGE_LABELS)) +
     labs(title    = title, x = "Infector group (who transmits)", y = "Susceptible group (who acquires)" ) + #subtitle = "Posterior median (95% CrI) | Rows = susceptible, Cols = infector",
     theme_minimal(base_size = 14) +
-    theme(panel.grid = element_blank(), axis.text = element_text(size = 10, face = "bold"), axis.text.x   = element_text(angle = 0, hjust = 0.5), plot.title = element_text(face = "bold", size = 20), plot.subtitle = element_text(size = 10, colour = "grey40"), legend.position = "right") +
+    theme(panel.grid = element_blank(), axis.text = element_text(size = 10, face = "bold"), axis.text.x = element_text(angle = 0, hjust = 0.5), plot.title = element_text(face = "bold", size = 20), plot.subtitle = element_text(size = 10, colour = "grey40"), legend.position = "right") +
     theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 }
 
@@ -125,12 +125,12 @@ plot_waifw_5x5 <- function(df, title, fill_label = expression(beta), text_size =
 waifw_VT  <- summarise_matrix_param("beta_H_VT")
 waifw_NVT <- summarise_matrix_param("beta_H_NVT")
 betaHH <- print(plot_waifw_5x5(waifw_VT,  "A") + labs(subtitle = "Household VT Transmission (WAIFW \u03b2)") | 
-                plot_waifw_5x5(waifw_NVT, "B") + labs(subtitle = "Household NVT Transmission (WAIFW \u03b2)")) 
+                plot_waifw_5x5(waifw_NVT, "C") + labs(subtitle = "Household NVT Transmission (WAIFW \u03b2)")) 
 
 #R_HH Heatmaps
 R_VT  <- summarise_matrix_param("R_HH_VT")
 R_NVT <- summarise_matrix_param("R_HH_NVT")
-repHH <- print(plot_waifw_5x5(R_VT,  "C", fill_label = expression(R[HH])) + labs(subtitle = "Household VT reproduction number (R)") | 
+repHH <- print(plot_waifw_5x5(R_VT,  "B", fill_label = expression(R[HH])) + labs(subtitle = "Household VT reproduction number (R)") | 
                plot_waifw_5x5(R_NVT, "D", fill_label = expression(R[HH])) + labs(subtitle = "Household NVT reproduction number (R)"))
 
 #combined plot
@@ -163,10 +163,10 @@ p_comm <-
   geom_point(size = 3.5, position = position_dodge(0.35), shape = 21, stroke = 2) +
   geom_errorbar(aes(ymin = lo95, ymax = hi95), width = 0.1, linewidth = 0.9, position = position_dodge(0.35)) +
   scale_colour_manual(values = c(VT = "#c0392b", NVT = "#2980b9"), name = "Serotype") +
-  labs(x = "Age/HIV group", y = expression(lambda^'C'~(Community~force~of~infection~per~week ))) + 
+  labs(x = "Age/HIV group", y = expression(lambda^'C'~(Community~acquisition~per~week ))) + 
   scale_y_continuous(limit = c(0, 1.3), breaks = seq(0, 1.3, 0.2)) +
   theme_minimal(base_size = 14) +
-  theme(axis.text.x = element_text(angle = 0, hjust = 1, size = 12), axis.text.y = element_text(angle = 0, hjust = 1, size = 12), plot.title = element_text(face = "bold"), legend.position = 'right') +
+  theme(axis.text.x = element_text(angle = 0, size = 12), axis.text.y = element_text(angle = 0, hjust = 0.5, size = 12), plot.title = element_text(face = "bold"), legend.position = 'right') +
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
 print(p_comm)
@@ -198,11 +198,11 @@ mu_tbl <-
 p_mu <- 
   ggplot(mu_tbl, aes(x = group, y = med, colour = type, group = type)) +
   geom_hline(yintercept = 1, linetype = "dashed", colour = "grey60", linewidth = 0.5) +
-  geom_linerange(aes(ymin = lo95, ymax = hi95), linewidth = 2.0, position = position_dodge(0.45), alpha = 0.8) +
-  geom_linerange(aes(ymin = lo50, ymax = hi50), linewidth = 5.0, position = position_dodge(0.45), alpha = 0.5) +
+  geom_linerange(aes(ymin = lo95, ymax = hi95), linewidth = 1.5, position = position_dodge(0.45), alpha = 0.8) +
+  geom_linerange(aes(ymin = lo50, ymax = hi50), linewidth = 5, position = position_dodge(0.45), alpha = 0.5) +
   geom_point(size = 3.5, position = position_dodge(0.45)) +
   scale_colour_manual(values = c(VT = "#c0392b", NVT = "#2980b9"), name = "Serotype group") +
-  labs(title = "A", x = "Age/HIV", y = expression(mu~(Carriage~clearance~per~week))) + #title    = "Group-Specific Clearance Rates (\u03bc)", subtitle = "Thick bar: 50% CrI | Thin bar: 95% CrI",
+  labs(title = "A", x = "Age/HIV", y = expression(mu~(Carriage~clearance~per~week))) +
   theme_minimal(base_size = 14) +
   scale_y_continuous(limit = c(0, 1.6), breaks = seq(0, 1.6, 0.2)) +
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5, size = 12), axis.text.y = element_text(angle = 0, hjust = 0.5, size = 12), plot.title = element_text(face = "bold", size = 20), legend.position = "right") +

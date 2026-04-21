@@ -7,7 +7,7 @@
 #settings
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
-set.seed(1988)
+set.seed(1988L)
 
 #age/HIV hroup labels
 AGE_LABELS <- c(  "Y-Child", "O-Child", "Adult\nHIV\u2212", "Adult\nHIV+\nART-S", "Adult\nHIV+\nART-L")
