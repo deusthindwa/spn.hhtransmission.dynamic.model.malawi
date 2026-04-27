@@ -268,6 +268,10 @@ close(pb)
 frac_HH_VT  <- lHH_VT_grp  / (lHH_VT_grp  + lC_VT_grp  + 1e-12)
 frac_HH_NVT <- lHH_NVT_grp / (lHH_NVT_grp + lC_NVT_grp + 1e-12)
 
+#CC fraction of total FOI
+frac_CC_VT  <- lC_VT_grp  / (lHH_VT_grp  + lC_VT_grp  + 1e-12)
+frac_CC_NVT <- lC_NVT_grp / (lHH_NVT_grp + lC_NVT_grp + 1e-12)
+
 #posterior median + 50%/95% CrI per group
 summarise_grp <- function(mat, label) {
   tibble(
@@ -283,12 +287,30 @@ summarise_grp <- function(mat, label) {
   )
 }
 
-#total FOI of serotype groups
+#------------------------------------------------------------------------------
+
+#total FOI of serotype groups in HH and CC
 bind_rows(
   summarise_grp(lHH_VT_grp + lC_VT_grp,   "VT")  %>% mutate(source = "Total FOI"),
   summarise_grp(lHH_NVT_grp + lC_NVT_grp,  "NVT") %>% mutate(source = "Total FOI")) %>%
   mutate(grp_label = factor(grp_label, levels = AGE_LABELS_FLAT),
          sero = factor(sero,  levels = c("VT", "NVT")))
+
+#total FOI of serotype groups in HH
+bind_rows(
+  summarise_grp(lHH_VT_grp,   "VT")  %>% mutate(source = "Total HH FOI"),
+  summarise_grp(lHH_NVT_grp,  "NVT") %>% mutate(source = "Total HH FOI")) %>%
+  mutate(grp_label = factor(grp_label, levels = AGE_LABELS_FLAT),
+         sero = factor(sero,  levels = c("VT", "NVT")))
+
+#total FOI of serotype groups in CC
+bind_rows(
+  summarise_grp(lC_VT_grp,   "VT")  %>% mutate(source = "Total FOI"),
+  summarise_grp(lC_NVT_grp,  "NVT") %>% mutate(source = "Total FOI")) %>%
+  mutate(grp_label = factor(grp_label, levels = AGE_LABELS_FLAT),
+         sero = factor(sero,  levels = c("VT", "NVT")))
+
+#------------------------------------------------------------------------------
 
 #FOI of serotype groups by source
 foi_summary <- bind_rows(
@@ -300,7 +322,7 @@ foi_summary <- bind_rows(
          source = factor(source, levels = c("Household", "Community")),
          sero = factor(sero,  levels = c("VT", "NVT")))
 
-#fraction of household FOI
+#fraction of HH FOI
 frac_summary <- bind_rows(
   summarise_grp(frac_HH_VT,  "VT"),
   summarise_grp(frac_HH_NVT, "NVT")) %>%
@@ -312,6 +334,23 @@ frac_summary %>%
   select(grp_label, sero, median, lo95, hi95) %>%
   mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
   print(n = Inf)
+
+#fraction of CC FOI
+frac_summary <- bind_rows(
+  summarise_grp(frac_CC_VT,  "VT"),
+  summarise_grp(frac_CC_NVT, "NVT")) %>%
+  mutate(grp_label = factor(grp_label, levels = AGE_LABELS_FLAT),
+         sero = factor(sero, levels = c("VT", "NVT")))
+
+#posterior median CC fraction of total FOI
+frac_summary %>%
+  select(grp_label, sero, median, lo95, hi95) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
+  print(n = Inf)
+
+
+#------------------------------------------------------------------------------
+
 
 
 #VT WAIFW attribution summary [a_sus × b_inf]
@@ -348,6 +387,12 @@ draws_long_grp <- tibble(
 
 #-------------------------------------------------------------------------------- 
 
+# PLOT A — Absolute FOI
+#   Shows raw posterior magnitude of HH and community FOI per group.
+#   A group where the HH credible interval lies entirely above the community
+#   interval is one where household contact is the dominant route of
+#   acquisition. Use this to prioritise household-targeted interventions.
+
 #absolute FOI = HH + community side-by-side
 pA <- 
   foi_summary %>%
@@ -366,6 +411,14 @@ pA <-
   theme(plot.title = element_text(face = "bold", size = 20), plot.subtitle = element_text(size = 10, colour = "grey40"), legend.position  = "bottom") +
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5, size = 12), axis.text.y = element_text(angle = 0, hjust = 0.5, size = 12), legend.position = "right") +
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
+
+
+# PLOT B — Proportional stacked bars
+#   Normalises Plot A so both routes sum to 100% per group.
+#   Directly reads as "X% of this group's VT exposure comes from the household".
+#   Groups above 50% HH are primarily household-driven; those below are mainly
+#   community-driven. Differences across HIV status in adults reveal whether
+#   HIV-related immune changes alter the relative importance of each route.
 
 #stacked proportional attribution bar chart
 prop_df <- 
@@ -390,6 +443,13 @@ pB <-
   theme(plot.title = element_text(face = "bold", size = 20), plot.subtitle = element_text(size = 10, colour = "grey40"), legend.position  = "bottom") +
   theme(axis.text.x = element_text(angle = 0, hjust = 0.5, size = 12), axis.text.y = element_text(angle = 0, hjust = 0.5, size = 12), legend.position = "none") +
   theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
+
+
+# PLOT C — Posterior density of HH fraction
+#   Full posterior uncertainty in the HH fraction. If the 95% CrI spans both
+#   sides of 50%, the data cannot distinguish whether household or community
+#   is the dominant source for that group. Wide CrIs indicate where more data
+#   or stronger priors are needed.
 
 #posterior density of HH fraction per group
 pC <- 
@@ -470,6 +530,12 @@ std_compare <-
          sero   = factor(sero,   levels = c("VT", "NVT")),
          source = factor(source, levels = c("Community", "Household (size-adjusted)")))
 
+# PLOT D — Household-size-adjusted
+#   Removes compositional effects of different household sizes.
+#   Standardises to the median observed HH size, making groups comparable
+#   on equal footing. If the HH:community ratio changes substantially from
+#   Plot B to Plot C, variation in household size is an important confounder.
+
 pD <- 
   std_compare %>%
   ggplot(aes(x = sus_label, y = foi, fill = source)) +
@@ -488,40 +554,3 @@ pD <-
 ggsave(here::here("output", "suppl_HHsize.png"),
        plot = pD,
        width = 12, height = 8, unit = "in", dpi = 300)
-
-#-------------------------------------------------------------------------------- 
-
-# INTERPRETATION GUIDE
-#
-# PLOT A — Absolute FOI
-#   Shows raw posterior magnitude of HH and community FOI per group.
-#   A group where the HH credible interval lies entirely above the community
-#   interval is one where household contact is the dominant route of
-#   acquisition. Use this to prioritise household-targeted interventions.
-#
-# PLOT B — Proportional stacked bars
-#   Normalises Plot A so both routes sum to 100% per group.
-#   Directly reads as "X% of this group's VT exposure comes from the household".
-#   Groups above 50% HH are primarily household-driven; those below are mainly
-#   community-driven. Differences across HIV status in adults reveal whether
-#   HIV-related immune changes alter the relative importance of each route.
-#
-# PLOT C — Posterior density of HH fraction
-#   Full posterior uncertainty in the HH fraction. If the 95% CrI spans both
-#   sides of 50%, the data cannot distinguish whether household or community
-#   is the dominant source for that group. Wide CrIs indicate where more data
-#   or stronger priors are needed.
-#
-# PLOT D — Household-size-adjusted
-#   Removes compositional effects of different household sizes.
-#   Standardises to the median observed HH size, making groups comparable
-#   on equal footing. If the HH:community ratio changes substantially from
-#   Plot B to Plot C, variation in household size is an important confounder.
-#
-# POLICY RELEVANCE
-#   Groups with high HH fractions benefit most from household-level
-#   interventions (contact tracing, household vaccination, decolonisation).
-#   Groups where community FOI dominates need population-wide approaches.
-#   The HIV+ ART groups are of special interest: if their HH fraction is
-#   elevated, it may reflect that close household carers drive their exposure,
-#   making household vaccination of carers particularly beneficial.

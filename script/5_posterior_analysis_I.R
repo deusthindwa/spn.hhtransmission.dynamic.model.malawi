@@ -125,22 +125,23 @@ plot_waifw_5x5 <- function(df, title, fill_label = expression(beta), text_size =
 waifw_VT  <- summarise_matrix_param("beta_H_VT")
 waifw_NVT <- summarise_matrix_param("beta_H_NVT")
 betaHH <- print(plot_waifw_5x5(waifw_VT,  "A") + labs(subtitle = "Household VT Transmission (WAIFW \u03b2)") | 
-                plot_waifw_5x5(waifw_NVT, "C") + labs(subtitle = "Household NVT Transmission (WAIFW \u03b2)")) 
+                plot_waifw_5x5(waifw_NVT, "B") + labs(subtitle = "Household NVT Transmission (WAIFW \u03b2)")) 
 
 #R_HH Heatmaps
 R_VT  <- summarise_matrix_param("R_HH_VT")
 R_NVT <- summarise_matrix_param("R_HH_NVT")
-repHH <- print(plot_waifw_5x5(R_VT,  "B", fill_label = expression(R[HH])) + labs(subtitle = "Household VT reproduction number (R)") | 
-               plot_waifw_5x5(R_NVT, "D", fill_label = expression(R[HH])) + labs(subtitle = "Household NVT reproduction number (R)"))
+repHH <- print(plot_waifw_5x5(R_VT,  "", fill_label = expression(R[HH])) + labs(subtitle = "Household VT reproduction number (R)") | 
+               plot_waifw_5x5(R_NVT, "", fill_label = expression(R[HH])) + labs(subtitle = "Household NVT reproduction number (R)"))
 
 #combined plot
 WAIFW_main <- betaHH/repHH
+WAIFW_main <- betaHH
 
 #combined plots
 ggsave(here::here("output", "main_WAIFW.png"), 
        plot = WAIFW_main, 
-       width = 15, 
-       height = 10, 
+       width = 14, 
+       height = 6, 
        unit = "in", 
        dpi = 300)
 
